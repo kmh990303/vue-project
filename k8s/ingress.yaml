@@ -11,28 +11,28 @@ spec:
       paths:
       - backend:
           service:
-            name: sk007-replicaset-test
+            name: sk007-vue-project007
             port:
               number: 8080
         path: /api
         pathType: Prefix
       - backend:
           service:
-            name: sk007-replicaset-test
+            name: sk007-vue-project007
             port:
               number: 8081
         path: /actuator
         pathType: Prefix
       - backend:
           service:
-            name: sk007-replicaset-test
+            name: sk007-vue-project007
             port:
               number: 8080
         path: /swagger
         pathType: Prefix
       - backend:
           service:
-            name: sk007-replicaset-test
+            name: sk007-vue-project007
             port:
               number: 8080
         path: /
