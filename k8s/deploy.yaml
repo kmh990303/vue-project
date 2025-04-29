@@ -3,44 +3,76 @@ kind: Deployment
 metadata:
   name: sk007-vue-project007
   namespace: skala-practice
+  labels:
+    app: sk007-vue-project007
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: sk007-vue-project007
   template:
     metadata:
+      labels:
+        app: sk007-vue-project007
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '8081'
         prometheus.io/path: '/actuator/prometheus'
         update: 02839f04f1ec4842d674985617a0e290
-      labels:
-        app: sk007-vue-project007
     spec:
       serviceAccountName: default
+
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: control-plane
-                operator: In
-                values:
-                - "amdp"
-      containers:
-      - name: vue-project007
-        image: amdp-registry.skala-ai.com/skala25a/sk007-vue-project007:1.0.0
-        imagePullPolicy: Always
-        env:
-        - name: LOGGING_LEVEL
-          value: DEBUG
-        - name: USER_NAME
-          value: sk007
-        - name: NAMESPACE
-          value: skala-practice
+              - matchExpressions:
+                  - key: control-plane
+                    operator: In
+                    values:
+                      - "amdp"
+
       tolerations:
-      - effect: 
-        key: control-plane
-        operator: Equal
-        value: "amdp"
+        - key: control-plane
+          operator: Equal
+          value: "amdp"
+          effect: NoSchedule
+
+      containers:
+        - name: vue-project007
+          image: amdp-registry.skala-ai.com/skala25a/sk007-vue-project007:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: LOGGING_LEVEL
+              value: DEBUG
+            - name: USER_NAME
+              value: sk007
+            - name: NAMESPACE
+              value: skala-practice
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 30
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
